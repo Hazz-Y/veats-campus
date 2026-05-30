@@ -1,243 +1,232 @@
-# 🍽️ VEats — Campus Takeaway App
+<div align="center">
 
-Queue-free pick-up app with multi-vendor single-checkout, nutrition tracking, QR pickup, PhonePe payment stubs, vendor & admin panels.
+# VEats — Campus Food Platform
 
----
+**Queue-free campus takeaway with multi-vendor single-checkout, nutrition tracking, QR code pickup, and PhonePe payment integration — web + mobile**
 
-## 📁 Repository Structure
+![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=next.js&logoColor=white)
+![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?style=flat-square&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-4F46E5?style=flat-square&logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-3B82F6?style=flat-square&logo=prisma&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-Mobile-7C3AED?style=flat-square&logo=flutter&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-F59E0B?style=flat-square&logo=docker&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-10B981?style=flat-square&logo=tailwindcss&logoColor=white)
 
-```
-vi_eat/
-  frontend/          # Next.js + TypeScript + Tailwind CSS
-  mobile/            # Flutter (Dart) — Android scaffold
-  backend/           # NestJS + Prisma + PostgreSQL
-  supabase/          # Optional: SQL migrations + Edge Functions
-  infra/             # Docker + Dockerfiles
-  scripts/           # Seed data & local dev scripts
-  .github/           # GitHub Actions CI/CD
-  Jenkinsfile.example
-```
+</div>
 
 ---
 
-## 🚀 Quick Start
+## The Problem
+
+Campus food courts generate long queues during peak hours, with students waiting 15–30 minutes just to order. Multiple vendors operate independently — no unified cart, no cross-vendor checkout, no advance ordering. Students waste class gaps standing in line. Vendors lack digital order management. And there's no visibility into nutritional data for health-conscious students or hostel mess alternatives.
+
+VEats eliminates queuing entirely. Students browse menus from all campus vendors in one app, build a unified cart, pay digitally, and receive a QR code for contactless pickup — all before leaving the classroom.
+
+---
+
+## What This Does
+
+A production-grade campus food ordering platform spanning web, mobile, vendor dashboard, and admin panel.
+
+- **Multi-vendor single cart** — order from multiple campus eateries in one checkout
+- **QR code pickup** — unique per-order QR generated on payment, scanned by vendor for contactless handoff
+- **Nutrition tracking** — calorie, protein, carb, and fat breakdown per item and per cart total
+- **PhonePe integration** — UPI payment gateway with webhook verification (production-ready stubs)
+- **Vendor panel** — order queue management, menu CRUD, prep-time estimates, item availability toggle
+- **Admin dashboard** — platform-wide analytics, vendor onboarding, user management
+- **Mobile app** — Flutter-based Android companion app mirroring web functionality
+- **CI/CD pipeline** — GitHub Actions for automated testing and deployment
+
+---
+
+## System Architecture
+
+```mermaid
+graph TB
+    subgraph ClientLayer["Client Layer"]
+        WEB["Next.js Web App<br/>TypeScript + Tailwind"]
+        MOBILE["Flutter Mobile App<br/>Dart · Android"]
+    end
+
+    subgraph APILayer["API Layer — NestJS"]
+        AUTH["Auth Module<br/>JWT + refresh tokens"]
+        MENU["Menu Module<br/>vendor catalog CRUD"]
+        ORDER["Order Module<br/>lifecycle management"]
+        PAYMENT["Payment Module<br/>PhonePe + webhooks"]
+        USER["User Module<br/>profiles + roles"]
+        NUTRITION["Nutrition Module<br/>per-item breakdown"]
+        QR["QR Module<br/>order pickup codes"]
+    end
+
+    subgraph DataLayer["Data Layer"]
+        PG["PostgreSQL 15"]
+        PRISMA["Prisma ORM<br/>schema + migrations"]
+        SUPA["Supabase<br/>(optional edge functions)"]
+    end
+
+    subgraph Infra["Infrastructure"]
+        DOCKER["Docker Compose<br/>local dev stack"]
+        GHA["GitHub Actions<br/>CI/CD pipeline"]
+        JENKINS["Jenkinsfile<br/>(optional)"]
+    end
+
+    WEB -->|REST API| AUTH
+    MOBILE -->|REST API| AUTH
+    AUTH --> USER
+    WEB --> MENU
+    WEB --> ORDER
+    WEB --> PAYMENT
+    MOBILE --> MENU
+    MOBILE --> ORDER
+
+    ORDER --> QR
+    ORDER --> NUTRITION
+    PAYMENT -->|Webhook| ORDER
+
+    MENU --> PRISMA
+    ORDER --> PRISMA
+    USER --> PRISMA
+    PRISMA --> PG
+    PG -.-> SUPA
+
+    DOCKER --> PG
+    GHA --> APILayer
+
+    style ClientLayer fill:#1e1b4b,stroke:#4F46E5,color:#e0e7ff
+    style APILayer fill:#1e1b4b,stroke:#3B82F6,color:#e0e7ff
+    style DataLayer fill:#1e1b4b,stroke:#7C3AED,color:#e0e7ff
+    style Infra fill:#1e1b4b,stroke:#10B981,color:#e0e7ff
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Role |
+|:---|:---|:---|
+| **Web Frontend** | Next.js 14, TypeScript, Tailwind CSS | Student-facing ordering UI, vendor panel, admin dashboard |
+| **Mobile** | Flutter (Dart) | Android companion app |
+| **API Backend** | NestJS 10, TypeScript | Modular REST API with guards, interceptors, DTOs |
+| **ORM** | Prisma | Type-safe database access, migration management |
+| **Database** | PostgreSQL 15 | Relational data store for orders, menus, users |
+| **Auth** | JWT (access + refresh tokens) | Stateless authentication with role-based guards |
+| **Payments** | PhonePe UPI SDK | Digital payment integration with webhook verification |
+| **QR Generation** | qrcode library | Unique pickup codes per order |
+| **Edge Functions** | Supabase (optional) | Serverless SQL triggers and edge logic |
+| **DevOps** | Docker Compose, GitHub Actions | Local dev stack, automated CI/CD |
+
+---
+
+## Core Features
+
+| Feature | Description |
+|:---|:---|
+| **Multi-Vendor Cart** | Add items from different campus vendors into a single cart — one checkout, one payment |
+| **QR Pickup** | Unique QR code generated per order after payment → vendor scans to confirm pickup |
+| **Nutrition Tracker** | Calorie, protein, carb, fat breakdown per item → aggregated in cart view |
+| **Vendor Dashboard** | Real-time order queue, prep-time estimation, menu editor, item availability toggle |
+| **Admin Panel** | Platform analytics, vendor onboarding, user management, revenue reports |
+| **PhonePe Payments** | UPI-based payment flow with server-side webhook signature verification |
+| **Order Lifecycle** | `placed → accepted → preparing → ready → picked_up` with real-time status updates |
+| **Role-Based Access** | `student`, `vendor`, `admin` roles with JWT guard enforcement |
+
+---
+
+## Getting Started
 
 ### Prerequisites
+- Node.js 20+, npm 9+
+- Docker Desktop (for PostgreSQL)
+- Flutter SDK (for mobile only)
 
-- **Node.js** 20+ | **npm** 9+
-- **Docker Desktop** (for PostgreSQL)
-- **Flutter SDK** (for mobile only)
-
-### 1. Clone & Setup Environment
-
-```bash
-git clone <your-repo-url> veats
-cd veats
-
-# Backend env vars
-cp backend/.env.example backend/.env
-# Edit backend/.env to set your DATABASE_URL and JWT_SECRET
-
-# Frontend env vars
-cp frontend/.env.example frontend/.env.local
-```
-
-### 2. Start PostgreSQL
+### Quick Start
 
 ```bash
-cd infra
-docker-compose up -d postgres
-```
+# Clone the repository
+git clone https://github.com/Hazz-Y/VEats-Campus-Food-Platform.git
+cd VEats-Campus-Food-Platform
 
-### 3. Run Backend
+# Start PostgreSQL
+cd infra && docker-compose up -d postgres
 
-```bash
-cd backend
+# Backend
+cd ../backend
+cp .env.example .env    # Configure DATABASE_URL, JWT_SECRET
 npm install
 npx prisma migrate dev --name init
 npx prisma generate
-npm run start:dev
-# → http://localhost:3001
-```
+npm run start:dev       # → http://localhost:3001
 
-### 4. Seed the Database
-
-```bash
-# From project root
-bash scripts/seed_dev_db.sh
+# Seed demo data
+cd .. && bash scripts/seed_dev_db.sh
 # Seeds: 3 vendors, 9 menu items, demo users
-```
 
-### 5. Run Frontend
-
-```bash
+# Frontend
 cd frontend
+cp .env.example .env.local
 npm install
-npm run dev
-# → http://localhost:3000
+npm run dev             # → http://localhost:3000
+
+# Mobile (optional)
+cd ../mobile
+flutter pub get && flutter run
 ```
 
-### 6. Run Mobile (Flutter)
+### Environment Variables
 
-```bash
-cd mobile
-flutter pub get
-flutter run
-# See mobile/README.md for details
+| Variable | Required | Description |
+|:---|:---|:---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `JWT_SECRET` | Yes | 32+ character JWT signing secret |
+| `NEXT_PUBLIC_API_URL` | Yes | Backend URL for frontend |
+| `PHONEPE_MID` | Prod | PhonePe Merchant ID |
+| `PHONEPE_SECRET` | Prod | PhonePe API Secret |
+| `SUPABASE_URL` | Optional | Supabase project URL |
+
+---
+
+## Project Structure
+
 ```
-
-### 7. Run All via Docker Compose
-
-```bash
-cd infra
-docker-compose up
-# → Frontend: http://localhost:3000
-# → Backend:  http://localhost:3001
+VEats-Campus-Food-Platform/
+├── frontend/                    # Next.js + TypeScript + Tailwind
+│   ├── components/              # Menu cards, cart, QR display, nutrition
+│   ├── pages/                   # Student, vendor, admin views
+│   └── styles/
+├── backend/                     # NestJS + Prisma + PostgreSQL
+│   ├── src/
+│   │   ├── auth/                # JWT strategy, guards, decorators
+│   │   ├── orders/              # Order lifecycle, QR generation
+│   │   ├── menus/               # Vendor menu CRUD
+│   │   ├── payments/            # PhonePe webhook handler
+│   │   ├── users/               # Profile, role management
+│   │   └── nutrition/           # Per-item macro calculations
+│   └── prisma/                  # Schema, migrations, seed
+├── mobile/                      # Flutter (Dart) Android app
+├── infra/                       # Docker Compose configs
+├── scripts/                     # Seed data, dev utilities
+├── .github/                     # GitHub Actions CI/CD
+└── README.md
 ```
 
 ---
 
-## ⚙️ Environment Variables
-
-| Variable | Description | Required |
-|---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | ✅ |
-| `JWT_SECRET` | Secret for JWT signing (32+ chars) | ✅ |
-| `NEXT_PUBLIC_API_URL` | Backend URL for frontend | ✅ |
-| `NODE_ENV` | `development` / `production` | ✅ |
-| `SUPABASE_URL` | Supabase project URL | Optional |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key | Optional |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key | Optional |
-| `PHONEPE_MID` | PhonePe Merchant ID | `TODO` |
-| `PHONEPE_SECRET` | PhonePe API Secret | `TODO` |
-| `PHONEPE_WEBHOOK_SECRET` | Webhook signature key | `TODO` |
-
-> 🔒 **Security**: Never commit real secrets. All merchant keys are marked with `TODO` comments in the codebase.
-
----
-
-## 🧪 Testing
+## Testing
 
 ```bash
-# Backend tests (Jest)
+# Backend unit + integration tests
 cd backend && npm test
 
-# Frontend tests (React Testing Library)
+# Frontend tests
 cd frontend && npm test
 
-# Flutter tests
-cd mobile && flutter test
+# E2E (Cypress — if configured)
+npm run test:e2e
 ```
 
 ---
 
-## 🔌 API Endpoints
+## License
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/auth/login` | Login (JWT / Supabase) |
-| `GET` | `/vendors` | List all vendors |
-| `GET` | `/vendors/:id/menu` | Get vendor menu |
-| `POST` | `/orders/create` | Create order (multi-vendor) |
-| `POST` | `/payments/phonepe/webhook` | PhonePe callback |
-| `POST` | `/pickup/scan` | Verify pickup code |
-| `POST` | `/settlements/run` | Trigger settlement |
-| `GET` | `/nutrition/user/:id?date=...` | Daily macro summary |
-| `GET` | `/menu/top-selling?days=7` | Top 5 items analytics |
-
-### Sample cURL Commands
-
-```bash
-# Create an order
-curl -X POST http://localhost:3001/api/orders/create \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": "11111111-1111-1111-1111-111111111111",
-    "items": [
-      {"menuItemId": "a0000001-0000-0000-0000-000000000001", "quantity": 2},
-      {"menuItemId": "b0000002-0000-0000-0000-000000000002", "quantity": 1}
-    ]
-  }'
-
-# Simulate PhonePe webhook (mark order as paid)
-curl -X POST http://localhost:3001/api/payments/phonepe/webhook \
-  -H "Content-Type: application/json" \
-  -d '{"order_ref": "<ORDER_ID>", "status": "PAID"}'
-
-# Verify pickup
-curl -X POST http://localhost:3001/api/pickup/scan \
-  -H "Content-Type: application/json" \
-  -d '{"orderId": "<ORDER_ID>", "pickupCode": "<PICKUP_CODE>"}'
-
-# Run settlements
-curl -X POST http://localhost:3001/api/settlements/run \
-  -H "Content-Type: application/json" \
-  -d '{"periodStart": "2026-02-01", "periodEnd": "2026-02-28"}'
-
-# Get nutrition
-curl http://localhost:3001/api/nutrition/user/11111111-1111-1111-1111-111111111111?date=2026-02-22
-```
-
----
-
-## 🏗️ CI/CD
-
-- **GitHub Actions**: `.github/workflows/ci-cd.yml` — Lint, test, build, Docker image, deploy placeholder
-- **Jenkins**: `Jenkinsfile.example` — Same pipeline stages
-
----
-
-## 📱 Supabase (Optional)
-
-If using Supabase instead of raw Prisma + PostgreSQL:
-
-1. Create a Supabase project at [supabase.com](https://supabase.com)
-2. Run `supabase/migrations/001_initial_schema.sql` in the SQL Editor
-3. Deploy Edge Functions: `supabase functions deploy create_order phonepe_webhook settlement_job`
-4. Set env vars: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY`
-
-> **Auth swap**: Replace JWT-based auth in `backend/src/modules/auth/` with Supabase Auth. See comments in `auth.service.ts` for instructions.
-
----
-
-## ✅ Developer Checklist (PR)
-
-- [ ] Run migrations: `cd backend && npx prisma migrate dev`
-- [ ] Seed database: `bash scripts/seed_dev_db.sh`
-- [ ] Start services: `cd infra && docker-compose up`
-- [ ] Run backend tests: `cd backend && npm test`
-- [ ] Run frontend tests: `cd frontend && npm test`
-- [ ] Verify seeded items at `http://localhost:3000`
-- [ ] Test order flow: create order → webhook → pickup scan
-- [ ] Check CI passes locally
-
----
-
-## 📊 DB Schema
-
-```
-users ─────────┐
-               ├── orders ──── order_items ──── menu_items ──── vendors
-               │                                   │
-               ├── food_log ───────────────────────┘
-               │
-           settlements ── vendors
-```
-
-**Tables**: `users`, `vendors`, `menu_items`, `orders`, `order_items`, `settlements`, `food_log`
-
-See `backend/prisma/schema.prisma` for full schema.
-
----
-
-## 📝 TODO / PhonePe Integration
-
-All payment integration points are marked with `TODO` comments:
-
-1. `backend/src/modules/payments/` — PhonePe API calls
-2. `supabase/functions/phonepe_webhook/` — Signature verification
-3. PhonePe docs: [developer.phonepe.com](https://developer.phonepe.com/docs/payment-gateway/)
-
----
-
-**Built with** ❤️ **for campus dining** | Next.js • NestJS • Flutter • Prisma • PostgreSQL
+MIT — see [LICENSE](LICENSE) for details.
